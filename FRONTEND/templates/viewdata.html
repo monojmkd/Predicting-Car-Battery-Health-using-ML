@@ -1,0 +1,54 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container-fluid sticky-top bg-dark bg-light-radial shadow-sm px-5 pe-lg-0">
+    <nav class="navbar navbar-expand-lg bg-dark bg-light-radial navbar-dark py-3 py-lg-0">
+        <a href="index.html" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-0">
+                <a href="{{url_for('viewdata')}}" class="nav-item nav-link active">VIEWDATA</a>
+                <a href="{{url_for('algo')}}" class="nav-item nav-link">MODEL EVALUATION</a>
+                <a href="{{url_for('prediction1')}}" class="nav-item nav-link">STATE OF BATTERY HEALTH</a>
+                <a href="{{url_for('prediction2')}}" class="nav-item nav-link">PREDICTING STATE OF CHARGE BATTERY</a>
+                <a href="{{url_for('index')}}" class="nav-item nav-link">LOGOUT</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+{% endblock %}
+{% block a %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Select a Dataset to View</h1>
+        <form method="POST" action="/viewdata">
+            <div class="form-group">
+                <label for="dataset">Choose Dataset:</label>
+                <select class="form-control" id="dataset" name="dataset">
+                    <option value="dataset1" {% if selected_dataset == 'dataset1' %}selected{% endif %}>Arranged_TripA01.xlsx</option>
+                    <option value="dataset2" {% if selected_dataset == 'dataset2' %}selected{% endif %}>bat_charge(4).csv</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">View Data</button>
+        </form>
+
+        {% if selected_table %}
+            <h2 class="mt-5">Displaying Data from {{ selected_dataset == 'dataset1' and 'Arranged_TripA01.xlsx' or 'bat_charge(4).csv' }}</h2>
+            <div class="table-responsive">
+                {{ selected_table|safe }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock %}

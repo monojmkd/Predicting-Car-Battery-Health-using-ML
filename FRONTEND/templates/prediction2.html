@@ -1,0 +1,159 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container-fluid sticky-top bg-dark bg-light-radial shadow-sm px-5 pe-lg-0">
+    <nav class="navbar navbar-expand-lg bg-dark bg-light-radial navbar-dark py-3 py-lg-0">
+        <a href="index.html" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-0">
+                <a href="{{url_for('viewdata')}}" class="nav-item nav-link ">VIEWDATA</a>
+                <a href="{{url_for('algo')}}" class="nav-item nav-link active">MODEL EVALUATION</a>
+                <a href="{{url_for('prediction1')}}" class="nav-item nav-link">STATE OF BATTERY HEALTH</a>
+                <a href="{{url_for('prediction2')}}" class="nav-item nav-link">PREDICTING STATE OF CHARGE BATTERY</a>
+                <a href="{{url_for('index')}}" class="nav-item nav-link">LOGOUT</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+
+{% block a %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATTERY CHARGE PREDICTION</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        input[type="number"] {
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="number"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+        input[type="submit"] {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 150px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        input[type="submit"]:active {
+            background-color: #004080;
+            transform: translateY(0);
+        }
+        .results, .error {
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BATTERY CHARGE PREDICTION</h1>
+        <form id="predictionForm">
+            <label for="minutes">Enter the number of minutes to predict the battery charge for the future:</label>
+            <input type="number" id="minutes" name="minutes" min="1" required>
+            <input type="submit" value="Predict">
+        </form>
+
+        <div id="resultContainer" class="results"></div>
+        <div id="errorContainer" class="error"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const minutes = document.getElementById('minutes').value;
+            const resultContainer = document.getElementById('resultContainer');
+            const errorContainer = document.getElementById('errorContainer');
+
+            resultContainer.innerHTML = '';
+            errorContainer.innerHTML = '';
+
+            fetch('/prediction2', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    'minutes': minutes
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+            })
+            .then(data => {
+                if (data.error) {
+                    errorContainer.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    const results = data.predicted_values.map(value => `<li>${value}</li>`).join('');
+                    resultContainer.innerHTML = `<h2>Predicted VDC values for the next ${minutes} minutes:</h2><ul>${results}</ul>`;
+                }
+            })
+            .catch(error => {
+                errorContainer.innerHTML = `<p>An error occurred: ${error.message}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
