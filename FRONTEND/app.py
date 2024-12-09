@@ -50,6 +50,8 @@ def registration():
         confirmpassword = request.form['confirmpassword']
         address = request.form['address']
 
+        print(f"Registration Input - Name: {name}, Email: {email}, Password: {password}, Confirm Password: {confirmpassword}")
+
         if password != confirmpassword:
             flash('Passwords do not match!', 'danger')
             return redirect(url_for('registration'))
@@ -80,14 +82,20 @@ def login():
         mycur.execute(sql, (email,))
         user = mycur.fetchone()
 
-        if user and user[3] == password:  # Assuming password is in column 4
-            session['logged_in'] = True
-            session['username'] = user[1]  # Assuming name is in column 2
-            return redirect(url_for('index'))
+        if user:
+            stored_password = user[2]  # Assuming the password is in the 3rd column (index 2)
+            if stored_password == password:
+                session['logged_in'] = True
+                session['username'] = user[0]  # Assuming name is in column 1 (index 0)
+                flash('Logged in successfully!', 'success')
+                return redirect(url_for('index'))
+            else:
+                flash('Invalid email or password!', 'danger')
         else:
-            flash('Invalid email or password!', 'danger')
+            flash('User not found!', 'danger')
 
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
